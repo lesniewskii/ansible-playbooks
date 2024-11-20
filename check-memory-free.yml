@@ -1,0 +1,13 @@
+---
+- name: Check memory usage with free command
+  hosts: all
+  become: no
+  tasks:
+    - name: Capture memory usage via free
+      shell: "free -h"
+      register: memory_usage
+
+    - name: Display memory usage
+      debug:
+        msg: |
+          {{ memory_usage.stdout }}

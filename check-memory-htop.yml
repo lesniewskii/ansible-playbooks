@@ -1,0 +1,19 @@
+---
+- name: Check memory usage with htop or fallback
+  hosts: all
+  become: no
+  tasks:
+    - name: Try to capture memory using htop
+      shell: "htop -b -n 1 | grep 'Mem:'"
+      register: htop_memory
+      failed_when: htop_memory.rc not in [0, 1]
+
+    - name: Fallback to free if htop fails
+      shell: "free -h | grep 'Mem:'"
+      when: htop_memory.rc != 0
+      register: fallback_memory
+
+    - name: Display memory usage
+      debug:
+        msg: "{{ htop_memory.stdout | default(fallback_memory.stdout) }}"
+
